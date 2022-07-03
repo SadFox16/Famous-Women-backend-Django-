@@ -1,17 +1,15 @@
-from .models import  User, Women, Category
-from rest_framework import generics
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, mixins, generics
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import (
-    LoginSerializer,
-    RegisterSerializer,
-    UserSerializer
-    )
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.views import APIView
 
+from .models import User, Women, Category
+from .permissions import IsAdminOrReadOnly
+from .serializers import LoginSerializer, RegisterSerializer, UserSerializer, WomenSerializer, CategorySerializer
+
+
+#Регистрация, авторизация, аутентификация
 class LoginView(TokenObtainPairView):
     permission_classes = (AllowAny, )
     serializer_class = LoginSerializer
@@ -36,54 +34,87 @@ class Logout(APIView):
         return Response(status=status.HTTP_200_OK)
         #return HttpResponse('http://127.0.0.1:8000/login/')
 
-
-# def get_question_count(question):
-#     question_cnt = History.objects.filter(question=question).count()
-#     return question_cnt
-#
-#
-# def get_random_answer():
-#    ids = Answers.objects.all().order_by('?').values_list('pk', flat=True)
-#    pk = random.randint(0, len(ids)-1)
-#    rand = Answers.objects.get(pk=ids[pk])
-#    return rand
-#
-#
-# def get_last_answer(question, user, answer_id):
-#     answer = History.objects.filter(question=question, user=user).order_by('-created_date').first()
-#     if answer and answer.id == answer_id:
-#         return get_last_answer(question, user, get_random_answer().id)
-#     return answer
-#
-#
-# def get_answer(user, question):
-#     answer = get_random_answer()
-#     history = History(
-#         user=user,
-#         answer=get_random_answer(),
-#         question=question,
-#     )
-#     history.save()
-#     data = {
-#         'answer': history.answer.answer,
-#         'question_cnt': get_question_count(history.question)
-#     }
-#     return data
+#-----------------------------------------------------------------------------------------
 
 
-# class AnswerView(generics.CreateAPIView):
-#     serializer_class = QuestionSerializer
-#     permission_classes = (IsAuthenticated, )
-#
-#     def get_queryset(self):
-#         return None
-#
-#     def post(self, request, *args, **kwargs):
-#         print(request.__dict__)
-#         serializer = self.get_serializer(data=request.data)
-#         print(repr(request.data))
-#         serializer.is_valid(raise_exception=True)
-#         print(repr(serializer.validated_data))
-#         data = get_answer(request.user, serializer.validated_data['question'])
-#         print(repr(data))
-#         return Response(data=data, status=status.HTTP_200_OK)
+#view для обычного юзера
+#для возвращения списка записей по GET
+class WomenAPIList(generics.ListAPIView):
+    queryset = Women.objects.all()
+    serializer_class = WomenSerializer
+    permission_classes = (IsAuthenticated, )
+
+
+#для возвращения списка категорий по GET
+class CategoryAPIList(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAuthenticated, )
+
+
+#для получения записей по конкретной категории
+class WomenByCategory(generics.RetrieveAPIView, generics.ListAPIView):
+    serializer_class = CategorySerializer
+    permission_classes = (IsAuthenticated, )
+    queryset = Category.objects.all()
+#-----------------------------------------------------------------------------------------
+
+
+#view для админа
+#для возвращения списка записей по GET и добавления новой записи по POST
+class AdminWomenAPIList(generics.ListCreateAPIView):
+    queryset = Women.objects.all()
+    serializer_class = WomenSerializer
+    permission_classes = (IsAuthenticated, )
+
+
+#для возвращения списка категорий по GET и добавления новой категории по POST
+class AdminCategoryAPIList(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAuthenticated, )
+
+
+#для обновления одной записи(только PUT или PATCH)
+class WomenAPIUpdate(generics.UpdateAPIView):
+    #отправляем одну измененную запись клиенту(ленивый запрос)
+    queryset = Women.objects.all()
+    serializer_class = WomenSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+#для обновления одной категории(только PUT или PATCH)
+class CategoryAPIUpdate(generics.UpdateAPIView):
+    #отправляем одну измененную категорию клиенту(ленивый запрос)
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+#для изменения/чтения записи
+class WomenAPIDetailView(generics.RetrieveUpdateAPIView):
+    queryset = Women.objects.all()
+    serializer_class = WomenSerializer
+    permission_classes = (IsAdminOrReadOnly, )
+
+
+#для изменения/чтения категории
+class CategoryAPIDetailView(generics.RetrieveUpdateAPIView):
+    queryset = Women.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly, )
+
+
+#для удаления записи
+class WomenAPIDestroy(generics.RetrieveDestroyAPIView):
+    queryset = Women.objects.all()
+    serializer_class = WomenSerializer
+    permission_classes = (IsAdminOrReadOnly, )
+
+
+#для удаления категории
+class CategoryAPIDestroy(generics.RetrieveDestroyAPIView):
+    queryset = Women.objects.all()
+    serializer_class = WomenSerializer
+    permission_classes = (IsAdminOrReadOnly, )
+#-----------------------------------------------------------------------------------------

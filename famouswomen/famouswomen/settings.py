@@ -1,4 +1,5 @@
 from pathlib import Path
+import datetime
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -6,7 +7,7 @@ SECRET_KEY = 'django-insecure-twa3m1l&=qbc^4=$32n*bw+l()i#1e8g)7a+6w8rc)0!a#uzev
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_yasg',
+    'corsheaders',
     'women',
 ]
 
@@ -94,3 +96,31 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
+# Corsheaders
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+JWT_AUTH = {
+
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=2),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
+
+SIMPLE_JWT = {
+    'BLACKLIST_AFTER_ROTATION': False,
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
+}
+
+LOGOUT_URL = 'http://127.0.0.1:8000/login/'

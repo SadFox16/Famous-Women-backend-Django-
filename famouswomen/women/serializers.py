@@ -55,22 +55,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-# class HistorySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = History
-#         fields = ('user', 'answer', 'question')
+class WomenSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Women
+        fields = ('title', 'content', 'cat', 'user')
 
 
-# class AnswersSerializer(serializers.Serializer):
-#     answer = serializers.CharField()
-#     question_cnt = serializers.IntegerField()
-#
-#
-# class QuestionSerializer(serializers.Serializer):
-#     question = serializers.CharField()
-#
-#
-# class HistorySerializer(serializers.Serializer):
-#     user = serializers.IntegerField()
-#     answer = serializers.CharField()
-#     question = serializers.CharField()
+class CategorySerializer(serializers.ModelSerializer):
+    womens = WomenSerializer(many=True)
+
+    class Meta:
+        model = Category
+        fields = ('pk', 'title', 'womens')

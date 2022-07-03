@@ -32,7 +32,6 @@ class Logout(APIView):
     def get(self, request):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
-        #return HttpResponse('http://127.0.0.1:8000/login/')
 
 #-----------------------------------------------------------------------------------------
 
@@ -76,45 +75,18 @@ class AdminCategoryAPIList(generics.ListCreateAPIView):
 
 
 #для обновления одной записи(только PUT или PATCH)
-class WomenAPIUpdate(generics.UpdateAPIView):
+class WomenAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     #отправляем одну измененную запись клиенту(ленивый запрос)
     queryset = Women.objects.all()
     serializer_class = WomenSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdminUser,)
 
 
 #для обновления одной категории(только PUT или PATCH)
-class CategoryAPIUpdate(generics.UpdateAPIView):
+class CategoryAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     #отправляем одну измененную категорию клиенту(ленивый запрос)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
-
-
-#для изменения/чтения записи
-class WomenAPIDetailView(generics.RetrieveUpdateAPIView):
-    queryset = Women.objects.all()
-    serializer_class = WomenSerializer
-    permission_classes = (IsAdminOrReadOnly, )
-
-
-#для изменения/чтения категории
-class CategoryAPIDetailView(generics.RetrieveUpdateAPIView):
-    queryset = Women.objects.all()
-    serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnly, )
-
-
-#для удаления записи
-class WomenAPIDestroy(generics.RetrieveDestroyAPIView):
-    queryset = Women.objects.all()
-    serializer_class = WomenSerializer
-    permission_classes = (IsAdminOrReadOnly, )
-
-
-#для удаления категории
-class CategoryAPIDestroy(generics.RetrieveDestroyAPIView):
-    queryset = Women.objects.all()
-    serializer_class = WomenSerializer
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (IsAdminUser,)
 #-----------------------------------------------------------------------------------------
+

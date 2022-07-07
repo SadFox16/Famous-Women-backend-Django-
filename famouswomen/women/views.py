@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAu
 from rest_framework.views import APIView
 
 from .models import User, Women, Category
-from .permissions import IsAdminOrReadOnly
 from .serializers import LoginSerializer, RegisterSerializer, UserSerializer, WomenSerializer, CategorySerializer
 
 
@@ -41,7 +40,7 @@ class Logout(APIView):
 class WomenAPIList(generics.ListAPIView):
     queryset = Women.objects.all()
     serializer_class = WomenSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (AllowAny, )
 
 
 #для возвращения списка категорий по GET
